@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NOTESHA</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📝</text></svg>"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #000;
+      --surface: #0d0d0d;
+      --border: #1a1a1a;
+      --border-bright: #2a2a2a;
+      --text: #fff;
+      --muted: #555;
+      --dim: #333;
+      --accent: #fff;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Space Grotesk', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 3rem 1rem 4rem;
+    }
+
+    /* ── LOGO ── */
+    .logo {
+      font-size: 2.8rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      text-align: center;
+      margin-bottom: 0.4rem;
+    }
+    .logo span { color: var(--muted); }
+
+    .sub {
+      color: var(--muted);
+      font-size: 0.9rem;
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    /* ── CARD ── */
+    .card {
+      width: 100%;
+      max-width: 640px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem;
+    }
+
+    /* ── INPUT ── */
+    .input-row {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    input[type="text"], input[type="email"] {
+      flex: 1;
+      background: #000;
+      border: 1px solid var(--border-bright);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.9rem;
+      padding: 0.7rem 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input::placeholder { color: var(--muted); }
+    input:focus { border-color: #444; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      background: var(--text);
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.7rem 1.2rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .btn:hover { opacity: 0.88; }
+    .btn:active { transform: scale(0.97); }
+    .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border-bright);
+    }
+    .btn-ghost:hover { color: var(--text); border-color: #444; opacity: 1; }
+
+    .btn-full { width: 100%; }
+
+    /* ── SPINNER ── */
+    .spinner-wrap {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      padding: 2rem 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    .spinner-wrap.active { display: flex; }
+
+    .spinner {
+      width: 28px; height: 28px;
+      border: 2px solid var(--border-bright);
+      border-top-color: var(--text);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── ERROR ── */
+    .error-box {
+      display: none;
+      background: #1a0000;
+      border: 1px solid #3a0000;
+      border-radius: 8px;
+      color: #ff6b6b;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      margin-top: 1rem;
+      padding: 0.9rem 1rem;
+      white-space: pre-wrap;
+    }
+    .error-box.active { display: block; }
+
+    /* ── SUCCESS ── */
+    .success-box {
+      display: none;
+      background: #001a05;
+      border: 1px solid #003a10;
+      border-radius: 8px;
+      color: #4ade80;
+      font-size: 0.82rem;
+      margin-top: 1rem;
+      padding: 0.9rem 1rem;
+    }
+    .success-box.active { display: block; }
+
+    /* ── NOTES VIEW ── */
+    #notes-section { display: none; width: 100%; max-width: 640px; }
+    #notes-section.active { display: block; }
+
+    .notes-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .notes-content {
+      color: #ccc;
+      font-size: 0.88rem;
+      line-height: 1.75;
+    }
+    .notes-content h1 {
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.4rem;
+      margin: 1.2rem 0 0.6rem;
+    }
+    .notes-content h1:first-child { margin-top: 0; }
+    .notes-content ul { padding-left: 1.2rem; }
+    .notes-content li { margin-bottom: 0.25rem; }
+    .notes-content p { margin-bottom: 0.5rem; }
+
+    /* ── ACTION ROW ── */
+    .action-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem 1.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .action-label {
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.25rem 0;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      color: var(--dim);
+      font-size: 0.7rem;
+      margin-top: 3rem;
+      text-align: center;
+    }
+
+    /* ── INPUT SECTION ── */
+    #input-section { width: 100%; max-width: 640px; }
+  </style>
+</head>
+<body>
+
+  <div class="logo">NOTE<span>SHA</span></div>
+  <p class="sub">Paste a YouTube link. Get clean, structured notes.</p>
+
+  <!-- INPUT SECTION -->
+  <div id="input-section">
+    <div class="card">
+      <div class="input-row">
+        <input type="text" id="url-input" placeholder="YouTube URL..." autocomplete="off"/>
+        <button class="btn" id="generate-btn" onclick="generate()">Generate →</button>
+      </div>
+      <div class="spinner-wrap" id="spinner">
+        <div class="spinner"></div>
+        <span id="spinner-msg">Fetching transcript...</span>
+      </div>
+      <div class="error-box" id="error-box"></div>
+    </div>
+  </div>
+
+  <!-- NOTES SECTION -->
+  <div id="notes-section">
+    <div class="notes-card">
+      <div class="notes-content" id="notes-output"></div>
+    </div>
+
+    <!-- Download PDF -->
+    <div class="action-card">
+      <div class="action-label">⬇ Download PDF</div>
+      <button class="btn btn-full" onclick="downloadPdf()">Download Notes as PDF</button>
+    </div>
+
+    <!-- Email PDF -->
+    <div class="action-card">
+      <div class="action-label">✉ Email PDF</div>
+      <div class="input-row">
+        <input type="email" id="email-input" placeholder="your@email.com"/>
+        <button class="btn" id="send-btn" onclick="sendEmail()">Send</button>
+      </div>
+      <div class="error-box" id="email-error"></div>
+      <div class="success-box" id="email-success">Sent! Check your inbox.</div>
+    </div>
+
+    <!-- Back -->
+    <button class="btn btn-ghost btn-full" onclick="goBack()">← Back</button>
+  </div>
+
+  <footer>made by sha</footer>
+
+  <script>
+    // Marked-lite: parse basic markdown to HTML
+    function parseMarkdown(md) {
+      return md
+        .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+        .replace(/^- (.+)$/gm, '<li>$1</li>')
+        .replace(/(<li>.*<\/li>\n?)+/g, m => `<ul>${m}</ul>`)
+        .replace(/^(?!<[hul])(.+)$/gm, '<p>$1</p>')
+        .replace(/<p><\/p>/g, '')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    }
+
+    let currentNotes = '';
+    let currentUrl   = '';
+
+    function setLoading(on, msg = 'Fetching transcript...') {
+      document.getElementById('spinner').classList.toggle('active', on);
+      document.getElementById('spinner-msg').textContent = msg;
+      document.getElementById('generate-btn').disabled = on;
+      document.getElementById('url-input').disabled = on;
+    }
+
+    function showError(id, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.classList.add('active');
+    }
+
+    function clearError(id) {
+      const el = document.getElementById(id);
+      el.textContent = '';
+      el.classList.remove('active');
+    }
+
+    async function generate() {
+      const url = document.getElementById('url-input').value.trim();
+      if (!url) return;
+      clearError('error-box');
+      setLoading(true, 'Fetching transcript...');
+
+      try {
+        const res = await fetch('/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          showError('error-box', data.error || 'Something went wrong.');
+          setLoading(false);
+          return;
+        }
+
+        currentNotes = data.notes;
+        currentUrl   = url;
+
+        document.getElementById('notes-output').innerHTML = parseMarkdown(data.notes);
+        document.getElementById('input-section').style.display = 'none';
+        document.getElementById('notes-section').classList.add('active');
+
+      } catch (e) {
+        showError('error-box', 'Network error. Please try again.');
+      }
+
+      setLoading(false);
+    }
+
+    function goBack() {
+      document.getElementById('notes-section').classList.remove('active');
+      document.getElementById('input-section').style.display = '';
+      document.getElementById('url-input').value = '';
+      document.getElementById('email-input').value = '';
+      clearError('email-error');
+      document.getElementById('email-success').classList.remove('active');
+      currentNotes = '';
+      currentUrl = '';
+    }
+
+    async function downloadPdf() {
+      const res = await fetch('/download-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ notes: currentNotes, url: currentUrl })
+      });
+      if (!res.ok) { alert('Failed to generate PDF.'); return; }
+      const blob = await res.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'notesha-notes.pdf';
+      a.click();
+    }
+
+    async function sendEmail() {
+      const email = document.getElementById('email-input').value.trim();
+      clearError('email-error');
+      document.getElementById('email-success').classList.remove('active');
+      if (!email) { showError('email-error', 'Enter an email address.'); return; }
+
+      const btn = document.getElementById('send-btn');
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+
+      try {
+        const res = await fetch('/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ notes: currentNotes, url: currentUrl, email })
+        });
+        const data = await res.json();
+        if (!res.ok) { showError('email-error', data.error || 'Failed to send.'); }
+        else { document.getElementById('email-success').classList.add('active'); }
+      } catch (e) {
+        showError('email-error', 'Network error. Please try again.');
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Send';
+    }
+
+    // Allow Enter key on URL input
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('url-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') generate();
+      });
+    });
+  </script>
+</body>
+</html>

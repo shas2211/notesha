@@ -1,0 +1,7 @@
+flask
+gunicorn
+groq
+youtube-transcript-api
+fpdf2
+requests
+python-dotenv
